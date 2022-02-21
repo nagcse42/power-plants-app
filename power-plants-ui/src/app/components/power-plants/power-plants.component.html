@@ -1,0 +1,35 @@
+<h1 class="title">USA Power Plant Distribution Map</h1>
+<div id="card-iput" fxFlex="100" fxLayout="row" fxLayoutAlign="space-between center">
+    <mat-form-field fxFlex="40" appearance="fill" class="form-field">
+        <mat-label>Select State</mat-label>
+        <mat-select [(ngModel)]="selectedState">
+            <mat-option *ngFor="let stateItem of statesList" [value]="stateItem">{{ stateItem.code }}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+    <mat-form-field fxFlex="40" appearance="fill" class="form-field">
+        <mat-label>Top N Plants</mat-label>
+        <input matInput [(ngModel)]="topNPlants">
+    </mat-form-field>
+    <button (click)="fetchTopNPlants()" mat-raised-button color="primary">Fetch Info</button>
+</div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col g-0 col-xxl-8 col-xl-8 col-lg-8 col-md-8 col-sm-12 col-12">
+            <div id="map">
+                <div class="tooltip" id="tooltip" *ngIf="toolTipInfo">
+                    <p>Plant Name: {{toolTipInfo.plantName}}</p>
+                    <p>State: {{toolTipInfo.state}}</p>
+                    <p>Net Generation : {{toolTipInfo.netGeneration}}</p>
+                </div>
+                <svg width="100%" height="100%" stroke-linejoin="round" stroke-linecap="round">
+                    <defs>
+                        <filter id="blur">
+                            <feGaussianBlur stdDeviation="5"></feGaussianBlur>
+                        </filter>
+                    </defs>
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>
