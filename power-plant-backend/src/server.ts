@@ -1,44 +1,66 @@
-import express from "express";
-import fs from "fs";
-import * as contents from "./data/Contents.json";
-import * as plantsInfo from "./data/PLNT20.json";
-import * as plantGeneration from "./data/GEN20.json";
+import http from 'http';
+import bodyParser from 'body-parser';
+import express from 'express';
+import logging from './config/logging';
+import config from './config/app-config';
+import powerGenerationRoutes from './routes/powerplant-info-route';
+import mongoose from 'mongoose';
 
+const NAMESPACE = 'Server';
+const router = express();
 
-const app = express();
-const port = 8080;
+/** Connect to Mongo */
+mongoose
+    .connect(config.mongo.url, config.mongo.options)
+    .then((result: any) => {
+        logging.info(NAMESPACE, 'Mongo Connected');
+    })
+    .catch((error: any) => {
+        logging.error(NAMESPACE, error.message, error);
+    });
 
-app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+/** Log the request */
+router.use((req, res, next) => {
+    /** Log the req */
+    logging.info(NAMESPACE, `METHOD: [${req.method}] - URL: [${req.url}] - IP: [${req.socket.remoteAddress}]`);
+
+    res.on('finish', () => {
+        /** Log the res */
+        logging.info(NAMESPACE, `METHOD: [${req.method}] - URL: [${req.url}] - STATUS: [${res.statusCode}] - IP: [${req.socket.remoteAddress}]`);
+    })
+
     next();
 });
 
-// define a route handler for the default home page
-app.get("/", (req, res) => {
-    res.send("Hello world!");
+/** Parse the body of the request */
+router.use(bodyParser.urlencoded({ extended: true }));
+router.use(bodyParser.json());
+
+/** Rules of our API */
+router.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+
+    if (req.method === 'OPTIONS') {
+        res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET');
+        return res.status(200).json({});
+    }
+
+    next();
 });
 
-app.get('/powerplants/data/contents', (req, res) => {
-    res.send(contents);
+/** Routes go here */
+router.use('/api', powerGenerationRoutes);
+
+/** Error handling */
+router.use((req, res, next) => {
+    const error = new Error('Not found');
+
+    res.status(404).json({
+        message: error.message
+    });
 });
 
-app.get('/powerplants/data/plants', (req, res) => {
-    res.send(plantsInfo);
-});
+const httpServer = http.createServer(router);
 
-app.get('/powerplants/generation', (req, res) => {
-    res.send(plantGeneration);
-});
-
-app.get('/powerplants/data/:top', (req, res) => {
-    const params = req.params;
-    const generationData: any[] = Object.values(plantGeneration);
-    const topN: number = +params.top;
-    res.send(topN);
-});
-
-// start the Express server
-app.listen(port, () => {
-    console.log(`server started at http://localhost:${port}`);
-});
+httpServer.listen(config.server.port, () => logging.info(NAMESPACE, `Server is running ${config.server.hostname}:${config.server.port}`));

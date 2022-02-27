@@ -1,0 +1,13 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "target": "es2015",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports":true,
+    "esModuleInterop":true,
+    "paths": { "@angular/*": ["./node_modules/@angular/*"] }
+  }
+}
