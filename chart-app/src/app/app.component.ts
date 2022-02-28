@@ -1,4 +1,6 @@
 import { Component, OnInit } from "@angular/core";
+import { ThemePalette } from "@angular/material/core";
+import { ProgressSpinnerMode } from "@angular/material/progress-spinner";
 import * as Highcharts from "highcharts/highmaps";
 //import * as usGeo from "@highcharts/map-collection/countries/us/us-all.geo.json";
 import { from } from "rxjs";
@@ -10,14 +12,16 @@ import { DataService } from "./data.service";
   styleUrls: ["./app.component.scss"]
 })
 export class AppComponent implements OnInit {
+  color: ThemePalette = 'primary';
+  mode: ProgressSpinnerMode = 'determinate';
+  value = 50;
   Highcharts: typeof Highcharts = Highcharts;
   chartConstructor = "mapChart";
-  chartData = [{ code3: "ABW", z: 105 }, { code3: "AFG", z: 35530 }];
   chartOptions: any;
   title: string = "USA Power Generation Details";
   subTitle: string = "Power generation state wise and power plan details";
   usaData: any;
-  seriesData: any[];
+  powerPlantsData: any[];
   statePowerdata: any[];
 
   topNPlants: any = 100;
@@ -31,20 +35,43 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.usaData = this.dataService.getUSGeoData();
     this.statesList = this.dataService.getUsStates();
-    this.dataService.getPowerGenerationInfo().subscribe((powerGenerationData: any) => {
-      this.statePowerdata = powerGenerationData;
-      this.prepareChartOptions();
-    });
-
-    // this.dataService.getPowerPlantInfo().subscribe((data) => {
-    //   this.seriesData = data;
-    // });
+    this.rederDefaultMap();
   }
 
-  prepareChartOptions() {
-    this.chartOptions = Highcharts.Options = {
+  rederDefaultMap() {
+    this.dataService.getPowerGenerationInfo().subscribe((powerGenerationData: any) => {
+      this.statePowerdata = powerGenerationData;
+      this.dataService.getPowerPlantInfo().subscribe((plantsInfo) => {
+        this.powerPlantsData = plantsInfo;
+        this.prepareChartOptions(this.statePowerdata, this.powerPlantsData, this.usaData);
+      });
+    });
+  }
+
+  fetchTopNPlants() {
+    if (!this.topNPlants) {
+      this.topNPlants = 100;
+    }
+    if (this.selectedState && this.topNPlants) {
+      this.dataService.getTopNPowerGenerationStates(this.topNPlants).subscribe((powerGenerationData: any) => {
+        this.statePowerdata = powerGenerationData;
+        this.statePowerdata = this.statePowerdata.filter(data => data.state == this.selectedState.code);
+        this.dataService.getPowerPlantsByState(this.selectedState.code).subscribe((plantsInfo) => {
+          this.powerPlantsData = plantsInfo;
+          let featureId = 'US.' + this.selectedState.code;
+          let filteredUsData = this.usaData;
+          filteredUsData.features = this.usaData.features.filter(ftr => ftr.id == featureId);
+          this.chartOptions = null;
+          this.prepareChartOptions(this.statePowerdata, this.powerPlantsData, filteredUsData);
+        });
+      });
+    }
+  }
+
+  prepareChartOptions(statePowerInfo: any, plantsInfo: any, mapData: any) {
+    this.chartOptions = {
       chart: {
-        map: this.usaData,
+        map: mapData,
         borderWidth: 1
       },
       title: {
@@ -85,7 +112,7 @@ export class AppComponent implements OnInit {
           //joinBy: ['postal-code', 'plantState'],
           //data: this.seriesData,
           joinBy: ['postal-code', 'state'],
-          data: this.statePowerdata,
+          data: statePowerInfo,
           minSize: 4,
           maxSize: '12%',
           tooltip: {
@@ -100,6 +127,17 @@ export class AppComponent implements OnInit {
             duration: 1000
           }
         }
+        // ,{
+        //   type: 'mappoint',
+        //   name: 'Power plant info',
+        //   joinBy: ['postal-code', 'plantState'],
+        //   data: plantsInfo,
+        //   // minSize: 4,
+        //   // maxSize: '12%',
+        //   tooltip: {
+        //     pointFormat: '{point.properties.name}: {point.z} MWH'
+        //   }
+        // }
       ]
     };
 

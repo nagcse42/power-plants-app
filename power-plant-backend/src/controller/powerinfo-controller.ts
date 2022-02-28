@@ -10,7 +10,7 @@ const NAMESPACE = 'PowerInfoControler';
 const fetchAllStatePowerInfo = (req: Request, res: Response, next: NextFunction) => {
     StatePower.find()
         .then((dataItems: any) => {
-            const response = prepareResponse(dataItems);
+            const response = prepareStatesPowerGenResponse(dataItems);
             res.send(response);
         })
         .catch((err: any) => {
@@ -28,7 +28,7 @@ const findTopNPowerGenerationStates = (req: Request, res: Response, next: NextFu
 
     StatePower.find().sort({ "annualNetGeneration": -1 }).limit(topN)
         .then((dataItems: any) => {
-            const response = prepareResponse(dataItems);
+            const response = prepareStatesPowerGenResponse(dataItems);
             res.send(response);
         })
         .catch((err: any) => {
@@ -57,8 +57,9 @@ const addStatePowerInfo = (req: any, res: any) => {
 const fetchAllPowerPlantsInfo = (req: Request, res: Response, next: NextFunction) => {
     const query = { lat: { "$exists": true, "$ne": 0 }, lon: { "$exists": true, "$ne": 0 } };
     PlantInfo.find(query)
-        .then((data: any) => {
-            res.send(data);
+        .then((dataItems: any) => {
+            const response = preparePowerPlantsResponse(dataItems);
+            res.send(response);
         })
         .catch((err: any) => {
             res.status(500).send({
@@ -75,8 +76,9 @@ const findPowerPlantsByState = (req: Request, res: Response, next: NextFunction)
 
     const query = { lat: { "$exists": true, "$ne": 0 }, lon: { "$exists": true, "$ne": 0 }, plantState: stateCode };
     PlantInfo.find(query)
-        .then((data: any) => {
-            res.send(data);
+        .then((dataItems: any) => {
+            const response = preparePowerPlantsResponse(dataItems);
+            res.send(response);
         })
         .catch((err: any) => {
             res.status(500).send({
@@ -101,7 +103,7 @@ const addPlantInfo = (req: any, res: any) => {
         });
 };
 
-const prepareResponse = (dataItems: any) => {
+const prepareStatesPowerGenResponse = (dataItems: any) => {
     const responseData: any[] = [];
     for (const dataItem of dataItems) {
         const responseItem: any = {
@@ -113,6 +115,26 @@ const prepareResponse = (dataItems: any) => {
             totalOznSeasnHeatInput: dataItem.totalOznSeasnHeatInput,
             annualNetGeneration: dataItem.annualNetGeneration,
             z: dataItem.annualNetGeneration
+        }
+        responseData.push(responseItem);
+    }
+
+    return responseData;
+};
+
+const preparePowerPlantsResponse = (dataItems: any) => {
+    const responseData: any[] = [];
+    for (const dataItem of dataItems) {
+        const responseItem: any = {
+            plantNumber: dataItem.plantNumber,
+            year: dataItem.year,
+            plantState: dataItem.plantState,
+            plantName: dataItem.plantName,
+            plantCode: dataItem.plantCode,
+            lat: dataItem.lat,
+            lon: dataItem.lon,
+            plantPrimaryFuel: dataItem.plantPrimaryFuel,
+            z: dataItem.fipsCountyCode
         }
         responseData.push(responseItem);
     }

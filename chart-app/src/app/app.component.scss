@@ -1,3 +1,19 @@
 p {
   font-family: Lato;
 }
+
+.full-width {
+  width: 100%;
+}
+
+.form-field {
+  margin-right: 1rem;
+  margin-left: 0.5rem;
+}
+
+.spinner-section {
+  display: flex;
+  align-content: center;
+  align-items: center;
+  height: 60px;
+}

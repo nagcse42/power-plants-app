@@ -10,7 +10,7 @@ const NAMESPACE = 'PowerInfoControler';
 const fetchAllStatePowerInfo = (req, res, next) => {
     state_power_info_1.default.find()
         .then((dataItems) => {
-        const response = prepareResponse(dataItems);
+        const response = prepareStatesPowerGenResponse(dataItems);
         res.send(response);
     })
         .catch((err) => {
@@ -25,7 +25,7 @@ const findTopNPowerGenerationStates = (req, res, next) => {
     logging_1.default.info(NAMESPACE, `findTopNPowerGenerationStates request: [${topN}]`);
     state_power_info_1.default.find().sort({ "annualNetGeneration": -1 }).limit(topN)
         .then((dataItems) => {
-        const response = prepareResponse(dataItems);
+        const response = prepareStatesPowerGenResponse(dataItems);
         res.send(response);
     })
         .catch((err) => {
@@ -50,8 +50,9 @@ const addStatePowerInfo = (req, res) => {
 const fetchAllPowerPlantsInfo = (req, res, next) => {
     const query = { lat: { "$exists": true, "$ne": 0 }, lon: { "$exists": true, "$ne": 0 } };
     plant_info_1.default.find(query)
-        .then((data) => {
-        res.send(data);
+        .then((dataItems) => {
+        const response = preparePowerPlantsResponse(dataItems);
+        res.send(response);
     })
         .catch((err) => {
         res.status(500).send({
@@ -65,8 +66,9 @@ const findPowerPlantsByState = (req, res, next) => {
     logging_1.default.info(NAMESPACE, `findPowerPlantsByState request: [${stateCode}]`);
     const query = { lat: { "$exists": true, "$ne": 0 }, lon: { "$exists": true, "$ne": 0 }, plantState: stateCode };
     plant_info_1.default.find(query)
-        .then((data) => {
-        res.send(data);
+        .then((dataItems) => {
+        const response = preparePowerPlantsResponse(dataItems);
+        res.send(response);
     })
         .catch((err) => {
         res.status(500).send({
@@ -87,7 +89,7 @@ const addPlantInfo = (req, res) => {
         });
     });
 };
-const prepareResponse = (dataItems) => {
+const prepareStatesPowerGenResponse = (dataItems) => {
     const responseData = [];
     for (const dataItem of dataItems) {
         const responseItem = {
@@ -99,6 +101,24 @@ const prepareResponse = (dataItems) => {
             totalOznSeasnHeatInput: dataItem.totalOznSeasnHeatInput,
             annualNetGeneration: dataItem.annualNetGeneration,
             z: dataItem.annualNetGeneration
+        };
+        responseData.push(responseItem);
+    }
+    return responseData;
+};
+const preparePowerPlantsResponse = (dataItems) => {
+    const responseData = [];
+    for (const dataItem of dataItems) {
+        const responseItem = {
+            plantNumber: dataItem.plantNumber,
+            year: dataItem.year,
+            plantState: dataItem.plantState,
+            plantName: dataItem.plantName,
+            plantCode: dataItem.plantCode,
+            lat: dataItem.lat,
+            lon: dataItem.lon,
+            plantPrimaryFuel: dataItem.plantPrimaryFuel,
+            z: dataItem.fipsCountyCode
         };
         responseData.push(responseItem);
     }
