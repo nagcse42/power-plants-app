@@ -1,5 +1,5 @@
 {
-  "name": "chart-app",
+  "name": "plants-google-map",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -11,19 +11,15 @@
   },
   "private": true,
   "dependencies": {
+    "@agm/core": "^3.0.0-beta.0",
     "@angular/animations": "~10.0.14",
-    "@angular/cdk": "^10.0.14",
     "@angular/common": "~10.0.14",
     "@angular/compiler": "~10.0.14",
     "@angular/core": "~10.0.14",
     "@angular/forms": "~10.0.14",
-    "@angular/material": "^10.0.14",
     "@angular/platform-browser": "~10.0.14",
     "@angular/platform-browser-dynamic": "~10.0.14",
     "@angular/router": "~10.0.14",
-    "@highcharts/map-collection": "^1.1.3",
-    "highcharts": "^9.1.2",
-    "highcharts-angular": "^2.10.0",
     "rxjs": "~6.5.5",
     "tslib": "^2.0.0",
     "zone.js": "~0.10.3"
@@ -32,6 +28,7 @@
     "@angular-devkit/build-angular": "~0.1000.8",
     "@angular/cli": "~10.0.8",
     "@angular/compiler-cli": "~10.0.14",
+    "@types/googlemaps": "3.39.12",
     "@types/jasmine": "~3.5.0",
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "10.0.4",

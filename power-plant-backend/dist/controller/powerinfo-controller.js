@@ -118,7 +118,8 @@ const preparePowerPlantsResponse = (dataItems) => {
             lat: dataItem.lat,
             lon: dataItem.lon,
             plantPrimaryFuel: dataItem.plantPrimaryFuel,
-            z: dataItem.fipsCountyCode
+            z: dataItem.fipsCountyCode,
+            name: dataItem.plantName
         };
         responseData.push(responseItem);
     }

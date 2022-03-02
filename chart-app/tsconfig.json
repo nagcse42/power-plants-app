@@ -8,6 +8,12 @@
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports":true,
     "esModuleInterop":true,
-    "paths": { "@angular/*": ["./node_modules/@angular/*"] }
-  }
+    "skipLibCheck": true,
+    "paths": { "@angular/*": ["./node_modules/@angular/*"] },
+    "typeRoots": [
+      "node_modules/@types",
+    ]
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules","**/*.spec.ts"]
 }

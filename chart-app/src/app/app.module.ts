@@ -10,10 +10,12 @@ import { AppComponent } from './app.component';
 import { HttpClientModule } from '@angular/common/http';
 import { MaterialModule } from './modules/material.module';
 import { MatNativeDateModule } from '@angular/material/core';
+import { PowerPlantsHighChartsComponent } from './components/power-plants-high-charts/power-plants-high-charts.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    PowerPlantsHighChartsComponent
   ],
   imports: [
     BrowserModule,
